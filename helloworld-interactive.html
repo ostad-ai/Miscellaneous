@@ -1,0 +1,23 @@
+<!DOCTYPE html><html><head>
+<!--code at: https://github.com/ostad-ai/Miscellaneous-->
+<script defer src="https://pyscript.net/alpha/pyscript.min.js"></script>
+<style>div.mydiv {font-size: 30px; padding: 20px;}
+</style></head><body>
+<h1 style="color:#c268f3;">Python inside HTML: Interactive Factorial</h1>
+<input type="text" id="my-in" />
+<button id="mybutton" pys-onClick="factorial">Factorial</button>
+<div class="mydiv" id="my-out"></div><py-script>
+myOut=Element("my-out").element; myIn=Element("my-in").element
+def factorial(*args, **kwargs):
+    n=int(myIn.value)
+    if n<0: 
+        myOut.innerText="Enter non-negative integer!" 
+        return
+    if n==0 or n==1: 
+        result=1
+    else:
+        result=1 
+        for i in range(2,n+1): 
+            result*=i 
+    myOut.innerText=f'factorial({n})={result}'
+</py-script></body></html>

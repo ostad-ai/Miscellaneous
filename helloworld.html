@@ -1,0 +1,19 @@
+<!DOCTYPE html><html><head>
+<!--code at: https://github.com/ostad-ai/Miscellaneous-->
+<script defer src="https://pyscript.net/alpha/pyscript.min.js"></script>
+<style>
+div.mydiv{font-size:50px; padding:20px;} </style></head><body>
+<h1 style="text-align:center; color:red;">Python inside HTML:</h1>
+<div class="mydiv" id="py-out"></div>
+<py-script output="py-out">
+def factorial(n):
+	if n==0 or n==1:
+		return 1
+	result=1
+	for i in range(2,n+1):
+		result*=i
+	return result
+n=5
+print('Hello World from Python inside HTML')
+print(f'factorial({n})={factorial(n)}')
+</py-script></body></html>

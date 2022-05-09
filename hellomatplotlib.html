@@ -1,0 +1,24 @@
+<!DOCTYPE html><html><head>
+<!--code at: https://github.com/ostad-ai/Miscellaneous-->
+<script defer src="https://pyscript.net/alpha/pyscript.min.js"></script>
+<py-env>
+    - matplotlib
+    - numpy
+</py-env>
+<style>
+div.mydiv{padding:20px;}
+h1{text-align:center; color:#00ccff;}
+</style></head><body>
+<h1>Matplotlib and Numpy inside HTML:</h1>
+<div class="mydiv" id="py-out"></div>
+<py-script output="py-out">
+import matplotlib.pyplot as plt
+import numpy as np
+fig,ax=plt.subplots()
+xs=np.linspace(0,2*np.pi,100)
+ys=np.sin(xs); zs=np.cos(xs)
+ax.plot(xs,ys,c='red',label='y=sin(x)')
+ax.plot(xs,zs,c='blue',label='y=cos(x)')
+plt.legend(); fig
+</py-script></body></html>
+    
