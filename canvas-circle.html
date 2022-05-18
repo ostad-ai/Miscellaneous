@@ -6,8 +6,7 @@
 <button style="font-size:18px" id="mybutton" pys-onClick="drawCircle">
     Click to draw circle</button>
 <div><canvas id="my-canvas"></canvas></div><py-script>
-from pyodide import to_js
-from js import ImageData, Uint8ClampedArray, window
+from js import window
 import random; from math import pi
 canvas=Element("my-canvas").element
 canvas.width=window.innerWidth; canvas.height=500
