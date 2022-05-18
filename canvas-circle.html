@@ -1,0 +1,23 @@
+<!DOCTYPE html><html><head>
+<!--code at: https://github.com/ostad-ai/Miscellaneous-->
+<script defer src="https://pyscript.net/alpha/pyscript.min.js"></script>
+</head><body>
+<h1 style="color:#00a2fa;">Python inside HTML: Drawing circles on click</h1>
+<button style="font-size:18px" id="mybutton" pys-onClick="drawCircle">
+    Click to draw circle</button>
+<div><canvas id="my-canvas"></canvas></div><py-script>
+from pyodide import to_js
+from js import ImageData, Uint8ClampedArray, window
+import random; from math import pi
+canvas=Element("my-canvas").element
+canvas.width=window.innerWidth; canvas.height=500
+ctx = canvas.getContext("2d")
+ctx.clearRect(0, 0, canvas.width, canvas.height)
+def drawCircle(*args, **kwargs):    
+    width,height=canvas.width,canvas.height    
+    x=width*random.random(); y=height*random.random()
+    radius=7+.1*width*random.random()
+    r,g,b=random.randint(0,255),random.randint(0,255),random.randint(0,255)
+    ctx.beginPath(); ctx.arc(x, y, radius, 0, 2 * pi) 
+    ctx.fillStyle = f"rgba({r},{g},{b}, 0.5)"; ctx.fill()   
+</py-script></body></html>
