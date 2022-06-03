@@ -31,7 +31,11 @@ class Tree:
         ctx.strokeStyle=self.color
         ctx.lineWidth=self.level
         ctx.stroke()
-        self.cp=[xd,yd]        
+        self.cp=[xd,yd]     
+    def moveTo(self,d):
+        x,y=self.cp   
+        xd,yd=x-d*cos(self.cd),y-d*sin(self.cd)
+        self.cp=[xd,yd]
     def right(self,teta):
         self.cd=(self.cd-teta)%(2*pi)
     def left(self,teta):
@@ -46,7 +50,7 @@ class Tree:
         self.draw()
         self.right(self.angle)
         self.size/=self.ratio; self.level+=1
-        self.forward(-self.size)
+        self.moveTo(-self.size)
 def run(*args, **kwargs):    
     tree=Tree(); tree.draw()    
 def clear(*args,**kwargs):
