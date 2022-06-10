@@ -1,0 +1,78 @@
+<!DOCTYPE html><html><head>
+<!--code at: https://github.com/ostad-ai/Miscellaneous-->
+<script defer src="https://pyscript.net/alpha/pyscript.min.js"></script>
+</head><body>
+<h1 style="color:#15fa00;">Python inside HTML: Trees with varying angles</h1>
+<h3>Code by <i>Hamed Shah-Hosseini</i>, at: https://github.com/ostad-ai/Miscellaneous </h3>
+Choose angle: <input type="range" min="10" max="90" value="60" id="my-slider">
+&nbsp;Angle in degrees: <span id="my-angle"></span>
+<div><canvas id="my-canvas"></canvas></div><py-script>
+from js import window
+from pyodide import create_proxy
+import random; from math import pi,sin,cos
+canvas=Element("my-canvas").element
+canvas.width=window.innerWidth-12; canvas.height=550
+output=Element("my-angle").element
+slider=Element("my-slider").element
+ctx = canvas.getContext("2d")
+class Tree:
+    def __init__(self,x,size,level=8,angle=pi/6):
+        self.height=canvas.height    
+        y=self.height-1
+        self.cp=[x,y]; self.cd=pi/2; self.angle=angle; self.level=level
+        self.size=size; self.ratio=.71;  
+        r,g,b=random.randint(0,200),random.randint(0,200),random.randint(0,200)
+        self.color=f'rgba({r},{g},{b},.8)' 
+        self.colorF=f'rgba({200-r},{200-g},{200-b},.8)'
+    def forward(self,d):
+        x,y=self.cp
+        xd,yd=x-d*cos(self.cd),y-d*sin(self.cd)
+        ctx.beginPath();
+        ctx.moveTo(x,y)
+        ctx.lineTo(xd,yd)
+        ctx.strokeStyle=self.color
+        ctx.lineWidth=self.level
+        ctx.stroke()
+        self.cp=[xd,yd]     
+    def moveTo(self,d):
+        x,y=self.cp   
+        xd,yd=x-d*cos(self.cd),y-d*sin(self.cd)
+        self.cp=[xd,yd]
+    def right(self,teta):
+        self.cd=(self.cd-teta)%(2*pi)
+    def left(self,teta):
+        self.cd=(self.cd+teta)%(2*pi)
+    def drawLeaf(self):
+        x,y=self.cp
+        ctx.beginPath()
+        ctx.arc(x,y,3,0,2*pi)
+        ctx.fillStyle=self.colorF
+        ctx.fill()
+    def draw(self):
+        if self.level<=0:
+            self.drawLeaf()     
+            return
+        self.forward(self.size)
+        self.right(self.angle)
+        self.size*=self.ratio; self.level-=1
+        self.draw()
+        self.left(2*self.angle)
+        self.draw()
+        self.right(self.angle)
+        self.size/=self.ratio; self.level+=1
+        self.moveTo(-self.size)
+def clear(*args,**kwargs):
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+clear(None,None)
+trees=[]
+trees.append(Tree(200,85))
+trees.append(Tree(700,150))
+trees.append(Tree(1200,85))
+def show(*args,**kwargs):
+    clear(None,None)
+    output.innerHTML=slider.value;
+    for tree in trees:
+        tree.angle=pi*int(slider.value)/180.0
+        tree.draw()
+slider.addEventListener("input", create_proxy(show))
+</py-script></body></html> 
