@@ -1,0 +1,139 @@
+<!DOCTYPE html><html><head>
+<!--code at: https://github.com/ostad-ai/Miscellaneous-->
+<script defer src="https://pyscript.net/alpha/pyscript.min.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js'></script>
+</head><body>
+<h1 style="color:#565bf1;">Python inside HTML: Drawing 2D fractal trees in 3D </h1>
+<h3>Code by <i>Hamed Shah-Hosseini</i>, at: https://github.com/ostad-ai/Miscellaneous </h3>
+<button style="font-size:18px" id="mybutton" pys-onClick="Run">
+    Click to draw Tree</button>&nbsp;
+<button style="font-size:18px" id="mybutton2" pys-onClick="ClearTrees">
+    Click to Clear</button>
+<button style="font-size:18px" id="mybutton3" pys-onClick="IncreaseY">
+    UP (A)</button>&nbsp;
+<button style="font-size:18px" id="mybutton4" pys-onClick="DecreaseY">
+    DOWN (D)</button>
+    <button style="font-size:18px" id="mybutton5" pys-onClick="IncreaseDepth">
+        FORWARD (W)</button>&nbsp;
+    <button style="font-size:18px" id="mybutton6" pys-onClick="DecreaseDepth">
+        BACKWARD (S)</button>
+<div id="container"></div>
+<py-script>
+from js import THREE
+from js import window
+from pyodide import create_proxy,to_js
+import random
+from math import pi,sin,cos
+#------------------------
+container=Element("container").element
+renderer = THREE.WebGLRenderer.new()
+renderer.setSize( window.innerWidth, window.innerHeight )
+#-----------
+scene = THREE.Scene.new();
+camera =THREE.PerspectiveCamera.new( 75, window.innerWidth / window.innerHeight, 1, 500 )
+camera.position.z = 5; camera.position.y=2
+#----------
+light = THREE.PointLight.new( color="#ffffff",intensity=10 )
+light.position.set(0,12,1)
+scene.add( light )
+#-------------------
+loader=THREE.TextureLoader.new()
+texture=loader.load('https://raw.githubusercontent.com/ostad-ai/Miscellaneous/main/Media/ezhdeha2.jpg')
+texture.wrapS=THREE.RepeatWrapping
+texture.wrapT=THREE.RepeatWrapping
+texture.repeat.set(3,3)
+texture.needsUpdate=True
+#-----
+geometry_plane = THREE.PlaneGeometry.new( 200, 200 ,32,32)
+material_plane = THREE.MeshStandardMaterial.new(color="#ffff99",side=THREE.DoubleSide )
+material_plane.map=texture
+plane = THREE.Mesh.new( geometry_plane, material_plane )
+plane.receiveShadow = True
+plane.position.z=-15
+plane.rotation.x=-pi/2.01
+scene.add(plane)
+#-----------------
+scene.background = THREE.Color.new("#ccccff")
+lines=[]
+class Tree:
+    def __init__(self,level=8,angle=pi/6):
+        self.width,self.height=window.innerWidth,window.innerHeight    
+        x=random.randint(-int(self.width/100),int(self.width/100)); y=0
+        self.cp=[x,y]; self.cd=pi/2; self.angle=angle; self.level=level
+        self.size=1+.001*self.width*random.random(); self.ratio=.7+.1*random.random() 
+        r,g,b=random.randint(0,200),random.randint(20,200),random.randint(0,200)
+        self.color=f"rgb({r},{g},{b})" 
+        self.z=-random.randint(5,30)
+    def forward(self,d):
+        x,y=self.cp
+        xd,yd=x+d*cos(self.cd),y+d*sin(self.cd)
+        material = THREE.LineBasicMaterial.new(color=self.color,linewidth=500)
+        points=[]
+        points.append(THREE.Vector3.new(x,y,self.z))
+        points.append(THREE.Vector3.new(xd,yd,self.z))
+        geometry=THREE.BufferGeometry.new().setFromPoints(to_js(points))
+        line=THREE.Line.new(geometry,material)
+        scene.add(line)
+        lines.append(line)
+        self.cp=[xd,yd]     
+    def moveTo(self,d):
+        x,y=self.cp   
+        xd,yd=x+d*cos(self.cd),y+d*sin(self.cd)
+        self.cp=[xd,yd]
+    def right(self,teta):
+        self.cd=(self.cd-teta)%(2*pi)
+    def left(self,teta):
+        self.cd=(self.cd+teta)%(2*pi)
+    def draw(self):
+        if self.level<=0: return
+        self.forward(self.size)
+        self.right(self.angle)
+        self.size*=self.ratio; self.level-=1
+        self.draw()
+        self.left(2*self.angle)
+        self.draw()
+        self.right(self.angle)
+        self.size/=self.ratio; self.level+=1
+        self.moveTo(-self.size)
+
+def Run(*args,**kwargs):    
+    tree=Tree(); tree.draw()
+    renderer.render( scene, camera )
+def ClearTrees(*args,**kwargs):
+    for line in lines:
+        scene.remove(line)
+    lines.clear()
+    renderer.render( scene, camera )
+def IncreaseY(*args,**kwargs):
+    camera.position.y+=.5
+    if camera.position.y>=10:
+        camera.position.y=10
+    renderer.render( scene, camera )
+def DecreaseY(*args,**kwargs):
+    camera.position.y-=.5
+    if camera.position.y<.5:
+        camera.position.y=.5
+    renderer.render( scene, camera )
+def IncreaseDepth(*args,**kwargs):
+    camera.position.z-=.5
+    if camera.position.z<=-25:
+        camera.position.z=-25
+    renderer.render( scene, camera )
+def DecreaseDepth(*args,**kwargs):
+    camera.position.z+=.5
+    if camera.position.z>=15:
+        camera.position.z=15
+    renderer.render( scene, camera )
+def handleKeys(event):
+    keyCode=event.which
+    if keyCode==87: # key=w
+        IncreaseDepth(None,None)
+    if keyCode==83: # key=s
+        DecreaseDepth(None,None)
+    if keyCode==65: # key=a
+        IncreaseY(None,None)
+    if keyCode==68:  # key=d
+        DecreaseY(None,None)
+document.addEventListener('keydown',create_proxy(handleKeys))
+container.appendChild(renderer.domElement)
+</py-script></body></html>

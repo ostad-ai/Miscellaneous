@@ -7,3 +7,4 @@
 6. Drawing fractal-like trees in Canvas with Python in HTML using Pyscript. 
 7. Fractal-like trees by varying angle with Python in HTML using Pyscript. 
 8. Using THREEJS and Pyscript to draw cubes with Python in HTML.
+9. With THREEJS and Pyscript, we draw 2D fractal trees in 3D space, using Python in HTML.
