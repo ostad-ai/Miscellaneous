@@ -48,7 +48,6 @@ geometry_plane = THREE.PlaneGeometry.new( 200, 200 ,32,32)
 material_plane = THREE.MeshStandardMaterial.new(color="#ffff99",side=THREE.DoubleSide )
 material_plane.map=texture
 plane = THREE.Mesh.new( geometry_plane, material_plane )
-plane.receiveShadow = True
 plane.position.z=-15
 plane.rotation.x=-pi/2.01
 scene.add(plane)
