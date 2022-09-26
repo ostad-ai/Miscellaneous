@@ -1,0 +1,103 @@
+<!DOCTYPE html><html><head>
+<!--code at: https://github.com/ostad-ai/Miscellaneous-->
+<script defer src="https://pyscript.net/alpha/pyscript.min.js"></script>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js'></script>
+</head><body>
+<h1 style="color:#c90b90;">Python inside HTML: SkyBox with THREEJS and PyScript </h1>
+<h3>Code by <i>Hamed Shah-Hosseini</i>, at: https://github.com/ostad-ai/Miscellaneous </h3>
+<button style="font-size:18px" id="mybutton" pys-onClick="Reset">
+    Click to Reset (Show) The Scene</button>&nbsp;
+<button style="font-size:18px" id="mybutton3" pys-onClick="IncreaseY">
+    UP </button>&nbsp;
+<button style="font-size:18px" id="mybutton4" pys-onClick="DecreaseY">
+    DOWN</button>
+<button style="font-size:18px" id="mybutton5" pys-onClick="RotXP">
+        RotX-Positive(W)</button>&nbsp;
+<button style="font-size:18px" id="mybutton6" pys-onClick="RotXN">
+    RotX-Negative (S)</button>
+<button style="font-size:18px" id="mybutton7" pys-onClick="RotYP">
+            RotY-Positive (A)</button>&nbsp;
+<button style="font-size:18px" id="mybutton8" pys-onClick="RotYN">
+            RotY-Negative (D)</button>
+<div id="container"></div>
+<py-script>
+from js import THREE
+from js import window, Array
+from pyodide import create_proxy
+from math import pi
+#------------------------
+container=Element("container").element
+renderer = THREE.WebGLRenderer.new()
+renderer.setSize( window.innerWidth, window.innerHeight)
+#-----------
+box_size=10000; delta_size=box_size//50
+scene = THREE.Scene.new();
+camera =THREE.PerspectiveCamera.new( 75, window.innerWidth / window.innerHeight, 1, 2*box_size )
+camera.position.set(0,box_size//100,0)
+#----------
+texture_base='https://raw.githubusercontent.com/ostad-ai/Miscellaneous/main/Media/'
+texture_names=['Daylight_Box_Front.jpg','Daylight_Box_Back.jpg',
+'Daylight_Box_Top.jpg', 'Daylight_Box_Bottom.jpg',
+'Daylight_Box_Right.jpg','Daylight_Box_Left.jpg']
+
+materials=Array.new()
+for name in texture_names:
+    loader=THREE.TextureLoader.new()
+    texture=loader.load(texture_base+name)
+    material=THREE.MeshBasicMaterial.new(side=THREE.DoubleSide)
+    material.map=texture
+    materials.push(material)
+
+boxGeo=THREE.BoxGeometry.new(box_size,box_size,box_size)
+skybox=THREE.Mesh.new(boxGeo,materials)
+scene.add(skybox)
+#-----------------
+def Reset(*args,**kwargs): #reset the scene
+    camera.position.set(0,box_size//100,0)   
+    camera.rotation.set(0,0,0)
+    renderer.render( scene, camera )
+def IncreaseY(*args,**kwargs): #increase elevation
+    camera.position.y+=delta_size
+    if camera.position.y>=box_size//2-2:
+        camera.position.y=box_size//2-2
+    renderer.render( scene, camera )
+def DecreaseY(*args,**kwargs): #decrease elevation
+    camera.position.y-=delta_size
+    if camera.position.y<-box_size//2+2:
+        camera.position.y=-box_size//2+2
+    renderer.render( scene, camera )
+def RotYP(*args,**kwargs): #rotate y positively
+    camera.rotation.y+=.1
+    if camera.rotation.y>=2*pi:
+        camera.rotation.y=0
+    renderer.render( scene, camera )
+def RotYN(*args,**kwargs):   #rotate y negatively
+    camera.rotation.y-=.1
+    if camera.rotation.y<=-2*pi:
+        camera.rotation.y=0
+    renderer.render( scene, camera )
+def RotXP(*args,**kwargs): #rotate x positively
+    camera.rotation.x+=.1
+    if camera.rotation.x>=2*pi:
+        camera.rotation.x=0
+    renderer.render( scene, camera )
+def RotXN(*args,**kwargs):   #rotate x negatively
+    camera.rotation.x-=.1
+    if camera.rotation.x<=-2*pi:
+        camera.rotation.x=0
+    renderer.render( scene, camera )
+def handleKeys(event):
+    keyCode=event.which
+    if keyCode==87: # key=w
+        RotXP(None,None)
+    if keyCode==83: # key=s
+        RotXN(None,None)
+    if keyCode==65: # key=a
+        RotYP(None,None)
+    if keyCode==68:  # key=d
+        RotYN(None,None)
+        
+document.addEventListener('keydown',create_proxy(handleKeys))
+container.appendChild(renderer.domElement)
+
+</py-script></body></html>
